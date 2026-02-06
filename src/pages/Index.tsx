@@ -11,6 +11,8 @@ const Index = () => {
 
   // Mouse tracking
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
@@ -21,6 +23,8 @@ const Index = () => {
 
   // Scroll tracking
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
@@ -31,10 +35,12 @@ const Index = () => {
 
   // Interactive audio visualizer
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    
     const generateWave = () => {
       const baseWave = Array.from({ length: 20 }, () => Math.random() * 100);
       // Make waves respond to mouse position
-      const mouseInfluence = mousePosition.x / window.innerWidth;
+      const mouseInfluence = typeof window !== "undefined" && window.innerWidth > 0 ? mousePosition.x / window.innerWidth : 0;
       const adjustedWave = baseWave.map((val, i) => {
         const distance = Math.abs(i / 20 - mouseInfluence);
         return val * (1 - distance * 0.5);
@@ -57,8 +63,10 @@ const Index = () => {
   };
 
   // Calculate parallax and interactive transforms
-  const parallaxX = (mousePosition.x / window.innerWidth - 0.5) * 20;
-  const parallaxY = (mousePosition.y / window.innerHeight - 0.5) * 20;
+  const windowWidth = typeof window !== "undefined" ? window.innerWidth : 1920;
+  const windowHeight = typeof window !== "undefined" ? window.innerHeight : 1080;
+  const parallaxX = (mousePosition.x / windowWidth - 0.5) * 20;
+  const parallaxY = (mousePosition.y / windowHeight - 0.5) * 20;
   const scrollParallax = scrollY * 0.5;
 
   return (
@@ -90,7 +98,7 @@ const Index = () => {
               height: `${Math.random() * 3 + 1}px`,
               animationDelay: `${Math.random() * 3}s`,
               animationDuration: `${Math.random() * 2 + 2}s`,
-              transform: `translate(${(mousePosition.x / window.innerWidth - 0.5) * 10}px, ${(mousePosition.y / window.innerHeight - 0.5) * 10}px)`,
+              transform: `translate(${(mousePosition.x / windowWidth - 0.5) * 10}px, ${(mousePosition.y / windowHeight - 0.5) * 10}px)`,
             }}
           />
         ))}
@@ -181,7 +189,7 @@ const Index = () => {
             }}
           >
             {audioWave.map((height, i) => {
-              const distance = Math.abs(i - (mousePosition.x / window.innerWidth) * 20);
+              const distance = Math.abs(i - (mousePosition.x / windowWidth) * 20);
               const intensity = 1 - distance / 20;
               return (
                 <div
@@ -295,7 +303,7 @@ const Index = () => {
               style={{
                 left: `${baseX}%`,
                 top: `${baseY}%`,
-                transform: `translate(${(mousePosition.x / window.innerWidth - 0.5) * 50}px, ${(mousePosition.y / window.innerHeight - 0.5) * 50}px)`,
+                transform: `translate(${(mousePosition.x / windowWidth - 0.5) * 50}px, ${(mousePosition.y / windowHeight - 0.5) * 50}px)`,
                 opacity: 0.6 + Math.sin(Date.now() / 1000 + i) * 0.4,
                 boxShadow: `0 0 ${5 + Math.abs(parallaxX) * 0.1}px rgba(34,211,238,0.8)`,
               }}
